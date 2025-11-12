@@ -1,4 +1,43 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+
+/// Customization data for invitation appearance
+@immutable
+class InvitationCustomization {
+  final String? backgroundImagePath;
+  final Color? customPrimaryColor;
+  final Color? customAccentColor;
+  final Color? customBackgroundColor;
+  final double? fontSize;
+  final String? fontFamily;
+  
+  const InvitationCustomization({
+    this.backgroundImagePath,
+    this.customPrimaryColor,
+    this.customAccentColor,
+    this.customBackgroundColor,
+    this.fontSize,
+    this.fontFamily,
+  });
+
+  InvitationCustomization copyWith({
+    String? backgroundImagePath,
+    Color? customPrimaryColor,
+    Color? customAccentColor,
+    Color? customBackgroundColor,
+    double? fontSize,
+    String? fontFamily,
+  }) {
+    return InvitationCustomization(
+      backgroundImagePath: backgroundImagePath ?? this.backgroundImagePath,
+      customPrimaryColor: customPrimaryColor ?? this.customPrimaryColor,
+      customAccentColor: customAccentColor ?? this.customAccentColor,
+      customBackgroundColor: customBackgroundColor ?? this.customBackgroundColor,
+      fontSize: fontSize ?? this.fontSize,
+      fontFamily: fontFamily ?? this.fontFamily,
+    );
+  }
+}
 
 /// Event model with template support
 @immutable
@@ -12,6 +51,7 @@ class EventModel {
   final String location;
   final String templateId;
   final DateTime createdAt;
+  final InvitationCustomization? customization;
 
   const EventModel({
     required this.id,
@@ -23,6 +63,7 @@ class EventModel {
     required this.location,
     required this.templateId,
     required this.createdAt,
+    this.customization,
   });
 
   EventModel copyWith({
@@ -35,6 +76,7 @@ class EventModel {
     String? location,
     String? templateId,
     DateTime? createdAt,
+    InvitationCustomization? customization,
   }) {
     return EventModel(
       id: id ?? this.id,
@@ -46,6 +88,7 @@ class EventModel {
       location: location ?? this.location,
       templateId: templateId ?? this.templateId,
       createdAt: createdAt ?? this.createdAt,
+      customization: customization ?? this.customization,
     );
   }
 

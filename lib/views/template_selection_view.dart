@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../models/invitation_template.dart';
 import '../providers/template_provider.dart';
+import '../widgets/invitation_renderer.dart';
 
 /// View for browsing and selecting invitation templates
 class TemplateSelectionView extends ConsumerStatefulWidget {
@@ -98,7 +99,7 @@ class _TemplateSelectionViewState extends ConsumerState<TemplateSelectionView> {
                       return _TemplateCard(
                         template: template,
                         onTap: () {
-                          context.push('/templates/${template.id}/customize');
+                          context.push('/templates/${template.id}/enhanced');
                         },
                       );
                     },
@@ -186,84 +187,48 @@ class _TemplateCard extends StatelessWidget {
           children: [
             // Template Preview
             Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: template.colorScheme.background,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(12),
+              child: Stack(
+                children: [
+                  InvitationRenderer(
+                    template: template,
+                    isPreview: true,
                   ),
-                ),
-                child: Stack(
-                  children: [
-                    // Preview Content
-                    Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            template.category.icon,
-                            size: 48,
-                            color: template.colorScheme.primary,
-                          ),
-                          const SizedBox(height: 8),
-                          Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 16),
-                            height: 4,
-                            decoration: BoxDecoration(
-                              color: template.colorScheme.accent,
-                              borderRadius: BorderRadius.circular(2),
+                  // Premium Badge
+                  if (template.isPremium)
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.amber,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.star,
+                              size: 12,
+                              color: Colors.white,
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Preview',
-                            style: TextStyle(
-                              color: template.colorScheme.textPrimary,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Premium Badge
-                    if (template.isPremium)
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.amber,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.star,
-                                size: 12,
+                            SizedBox(width: 4),
+                            Text(
+                              'Premium',
+                              style: TextStyle(
                                 color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
                               ),
-                              SizedBox(width: 4),
-                              Text(
-                                'Premium',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
-                  ],
-                ),
+                    ),
+                ],
               ),
             ),
 

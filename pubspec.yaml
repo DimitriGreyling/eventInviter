@@ -42,6 +42,12 @@ dependencies:
   
   # Navigation
   go_router: ^14.2.7
+  
+  # Image handling
+  image_picker: ^1.0.7
+  
+  # Color picker
+  flex_color_picker: ^3.4.1
 
 dev_dependencies:
   flutter_test:

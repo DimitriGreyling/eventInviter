@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../models/invitation_template.dart';
+import '../models/event_model.dart';
 import '../providers/template_provider.dart';
+import '../widgets/invitation_renderer.dart';
 
 /// View for customizing a selected template with event details
 class TemplateCustomizationView extends ConsumerStatefulWidget {
@@ -82,6 +83,29 @@ class _TemplateCustomizationViewState
       );
       context.go('/');
     }
+  }
+
+  EventModel? _buildEventModel() {
+    // Return null if required fields are empty
+    if (_eventNameController.text.isEmpty ||
+        _hostNameController.text.isEmpty ||
+        _selectedDate == null ||
+        _timeController.text.isEmpty ||
+        _locationController.text.isEmpty) {
+      return null;
+    }
+
+    return EventModel(
+      id: 'preview',
+      name: _eventNameController.text,
+      hostName: _hostNameController.text,
+      description: _descriptionController.text,
+      date: _selectedDate!,
+      time: _timeController.text,
+      location: _locationController.text,
+      templateId: widget.templateId,
+      createdAt: DateTime.now(),
+    );
   }
 
   @override
@@ -328,13 +352,10 @@ class _TemplateCustomizationViewState
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: template.colorScheme.background,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            padding: const EdgeInsets.all(32),
-                            child: _buildPreview(template),
+                          child: InvitationRenderer(
+                            template: template,
+                            event: _buildEventModel(),
+                            isPreview: false,
                           ),
                         ),
                       ),
@@ -346,313 +367,6 @@ class _TemplateCustomizationViewState
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildPreview(InvitationTemplate template) {
-    switch (template.layout) {
-      case TemplateLayout.centered:
-        return _buildCenteredLayout(template);
-      case TemplateLayout.leftAligned:
-        return _buildLeftAlignedLayout(template);
-      case TemplateLayout.card:
-        return _buildCardLayout(template);
-      case TemplateLayout.fullImage:
-        return _buildFullImageLayout(template);
-      case TemplateLayout.split:
-        return _buildSplitLayout(template);
-    }
-  }
-
-  Widget _buildCenteredLayout(InvitationTemplate template) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(
-          template.category.icon,
-          size: 64,
-          color: template.colorScheme.primary,
-        ),
-        const SizedBox(height: 24),
-        Text(
-          _eventNameController.text.isEmpty
-              ? 'Your Event Name'
-              : _eventNameController.text,
-          style: TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.w700,
-            color: template.colorScheme.textPrimary,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 8),
-        Container(
-          width: 80,
-          height: 4,
-          decoration: BoxDecoration(
-            color: template.colorScheme.accent,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-        const SizedBox(height: 24),
-        Text(
-          'Hosted by ${_hostNameController.text.isEmpty ? "Your Name" : _hostNameController.text}',
-          style: TextStyle(
-            fontSize: 18,
-            color: template.colorScheme.textSecondary,
-          ),
-        ),
-        const SizedBox(height: 32),
-        _buildEventDetails(template),
-      ],
-    );
-  }
-
-  Widget _buildLeftAlignedLayout(InvitationTemplate template) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(
-              template.category.icon,
-              size: 48,
-              color: template.colorScheme.primary,
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                _eventNameController.text.isEmpty
-                    ? 'Your Event Name'
-                    : _eventNameController.text,
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w700,
-                  color: template.colorScheme.textPrimary,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Container(
-          width: 60,
-          height: 3,
-          color: template.colorScheme.accent,
-        ),
-        const SizedBox(height: 24),
-        Text(
-          'Hosted by ${_hostNameController.text.isEmpty ? "Your Name" : _hostNameController.text}',
-          style: TextStyle(
-            fontSize: 16,
-            color: template.colorScheme.textSecondary,
-          ),
-        ),
-        const SizedBox(height: 24),
-        _buildEventDetails(template),
-      ],
-    );
-  }
-
-  Widget _buildCardLayout(InvitationTemplate template) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: template.colorScheme.primary.withOpacity(0.3),
-          width: 2,
-        ),
-      ),
-      child: _buildCenteredLayout(template),
-    );
-  }
-
-  Widget _buildFullImageLayout(InvitationTemplate template) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            template.colorScheme.primary,
-            template.colorScheme.secondary,
-          ],
-        ),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            template.category.icon,
-            size: 64,
-            color: Colors.white,
-          ),
-          const SizedBox(height: 24),
-          Text(
-            _eventNameController.text.isEmpty
-                ? 'Your Event Name'
-                : _eventNameController.text,
-            style: const TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
-          Text(
-            'Hosted by ${_hostNameController.text.isEmpty ? "Your Name" : _hostNameController.text}',
-            style: const TextStyle(
-              fontSize: 18,
-              color: Colors.white70,
-            ),
-          ),
-          const SizedBox(height: 32),
-          _buildEventDetails(template, useWhiteText: true),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSplitLayout(InvitationTemplate template) {
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-              color: template.colorScheme.primary,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                bottomLeft: Radius.circular(12),
-              ),
-            ),
-            padding: const EdgeInsets.all(24),
-            child: Center(
-              child: Icon(
-                template.category.icon,
-                size: 80,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ),
-        Expanded(
-          flex: 2,
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  _eventNameController.text.isEmpty
-                      ? 'Your Event Name'
-                      : _eventNameController.text,
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                    color: template.colorScheme.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Hosted by ${_hostNameController.text.isEmpty ? "Your Name" : _hostNameController.text}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: template.colorScheme.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                _buildEventDetails(template),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEventDetails(InvitationTemplate template,
-      {bool useWhiteText = false}) {
-    final textColor = useWhiteText ? Colors.white : template.colorScheme.textPrimary;
-    final iconColor = useWhiteText ? Colors.white70 : template.colorScheme.primary;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (_dateController.text.isNotEmpty)
-          _DetailRow(
-            icon: Icons.calendar_today,
-            text: _dateController.text,
-            iconColor: iconColor,
-            textColor: textColor,
-          ),
-        if (_timeController.text.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          _DetailRow(
-            icon: Icons.access_time,
-            text: _timeController.text,
-            iconColor: iconColor,
-            textColor: textColor,
-          ),
-        ],
-        if (_locationController.text.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          _DetailRow(
-            icon: Icons.location_on,
-            text: _locationController.text,
-            iconColor: iconColor,
-            textColor: textColor,
-          ),
-        ],
-        if (_descriptionController.text.isNotEmpty) ...[
-          const SizedBox(height: 16),
-          Text(
-            _descriptionController.text,
-            style: TextStyle(
-              fontSize: 14,
-              color: useWhiteText ? Colors.white70 : template.colorScheme.textSecondary,
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-}
-
-class _DetailRow extends StatelessWidget {
-  final IconData icon;
-  final String text;
-  final Color iconColor;
-  final Color textColor;
-
-  const _DetailRow({
-    required this.icon,
-    required this.text,
-    required this.iconColor,
-    required this.textColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, size: 20, color: iconColor),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            text,
-            style: TextStyle(
-              fontSize: 14,
-              color: textColor,
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

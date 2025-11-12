@@ -4,6 +4,7 @@ import '../views/home_view.dart';
 import '../views/detail_view.dart';
 import '../views/template_selection_view.dart';
 import '../views/template_customization_view.dart';
+import '../views/enhanced_customization_view.dart';
 
 /// Application routes
 class AppRoutes {
@@ -12,6 +13,8 @@ class AppRoutes {
   static const String templates = '/templates';
   static String templateCustomize(String templateId) =>
       '/templates/$templateId/customize';
+  static String enhancedCustomize(String templateId) =>
+      '/templates/$templateId/enhanced';
 }
 
 /// GoRouter configuration
@@ -50,6 +53,17 @@ final goRouter = GoRouter(
         return MaterialPage(
           key: state.pageKey,
           child: TemplateCustomizationView(templateId: templateId),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/templates/:templateId/enhanced',
+      name: 'enhancedCustomize',
+      pageBuilder: (context, state) {
+        final templateId = state.pathParameters['templateId']!;
+        return MaterialPage(
+          key: state.pageKey,
+          child: EnhancedCustomizationView(initialTemplateId: templateId),
         );
       },
     ),
