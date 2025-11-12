@@ -107,7 +107,7 @@ class HomeView extends ConsumerWidget {
                       children: [
                         ElevatedButton(
                           onPressed: () {
-                            _showRegisterDialog(context);
+                            context.push(AppRoutes.templates);
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: theme.colorScheme.primary,
@@ -288,7 +288,7 @@ class HomeView extends ConsumerWidget {
                     const SizedBox(height: 32),
                     ElevatedButton(
                       onPressed: () {
-                        _showRegisterDialog(context);
+                        context.push(AppRoutes.templates);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
