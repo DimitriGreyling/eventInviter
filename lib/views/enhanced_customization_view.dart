@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
+import 'dart:io';
 import '../models/event_model.dart';
 import '../providers/template_provider.dart';
 import '../widgets/invitation_renderer.dart';
@@ -36,6 +37,7 @@ class _EnhancedCustomizationViewState
   
   // Customization state
   String? _selectedImagePath;
+  List<String> _carouselImagePaths = [];  // Multiple images for carousel
   Color? _customPrimaryColor;
   Color? _customAccentColor;
   Color? _customBackgroundColor;
@@ -71,6 +73,23 @@ class _EnhancedCustomizationViewState
         _selectedImagePath = image.path;
       });
     }
+  }
+
+  Future<void> _pickCarouselImages() async {
+    final ImagePicker picker = ImagePicker();
+    final List<XFile> images = await picker.pickMultiImage();
+    
+    if (images.isNotEmpty) {
+      setState(() {
+        _carouselImagePaths.addAll(images.map((img) => img.path));
+      });
+    }
+  }
+
+  void _removeCarouselImage(int index) {
+    setState(() {
+      _carouselImagePaths.removeAt(index);
+    });
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -135,6 +154,7 @@ class _EnhancedCustomizationViewState
       createdAt: DateTime.now(),
       customization: InvitationCustomization(
         backgroundImagePath: _selectedImagePath,
+        carouselImagePaths: _carouselImagePaths.isEmpty ? null : _carouselImagePaths,
         customPrimaryColor: _customPrimaryColor,
         customAccentColor: _customAccentColor,
         customBackgroundColor: _customBackgroundColor,
@@ -316,6 +336,7 @@ class _EnhancedCustomizationViewState
                         ),
                       ),
                       if (_selectedImagePath != null || 
+                          _carouselImagePaths.isNotEmpty ||
                           _customPrimaryColor != null ||
                           _customAccentColor != null ||
                           _customBackgroundColor != null)
@@ -323,6 +344,7 @@ class _EnhancedCustomizationViewState
                           onPressed: () {
                             setState(() {
                               _selectedImagePath = null;
+                              _carouselImagePaths.clear();
                               _customPrimaryColor = null;
                               _customAccentColor = null;
                               _customBackgroundColor = null;
@@ -344,7 +366,7 @@ class _EnhancedCustomizationViewState
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: InvitationRenderer(
-                            key: ValueKey('${_selectedTemplateId}_${_eventNameController.text}_${_customPrimaryColor}_${_customAccentColor}_${_selectedImagePath}'),
+                            key: ValueKey('${_selectedTemplateId}_${_eventNameController.text}_${_customPrimaryColor}_${_customAccentColor}_${_selectedImagePath}_${_carouselImagePaths.length}'),
                             template: currentTemplate,
                             event: _buildEventModel(),
                             isPreview: false,
@@ -400,6 +422,92 @@ class _EnhancedCustomizationViewState
                 ),
               ],
             ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        
+        // Image Carousel
+        Card(
+          child: Column(
+            children: [
+              ListTile(
+                leading: Icon(
+                  Icons.photo_library,
+                  color: theme.colorScheme.primary,
+                ),
+                title: const Text('Image Carousel'),
+                subtitle: Text(
+                  _carouselImagePaths.isEmpty 
+                      ? 'Add multiple images for slideshow' 
+                      : '${_carouselImagePaths.length} images',
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (_carouselImagePaths.isNotEmpty)
+                      IconButton(
+                        icon: const Icon(Icons.clear_all, size: 20),
+                        onPressed: () => setState(() => _carouselImagePaths.clear()),
+                        tooltip: 'Clear all',
+                      ),
+                    IconButton(
+                      icon: const Icon(Icons.add_photo_alternate_outlined),
+                      onPressed: _pickCarouselImages,
+                      tooltip: 'Add images',
+                    ),
+                  ],
+                ),
+              ),
+              if (_carouselImagePaths.isNotEmpty)
+                Container(
+                  height: 80,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _carouselImagePaths.length,
+                    itemBuilder: (context, index) {
+                      return Stack(
+                        children: [
+                          Container(
+                            width: 80,
+                            margin: const EdgeInsets.only(right: 8),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.grey[300]!),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(7),
+                              child: Image.file(
+                                File(_carouselImagePaths[index]),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            top: 0,
+                            right: 8,
+                            child: GestureDetector(
+                              onTap: () => _removeCarouselImage(index),
+                              child: Container(
+                                padding: const EdgeInsets.all(2),
+                                decoration: const BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.close,
+                                  size: 16,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+            ],
           ),
         ),
         const SizedBox(height: 12),

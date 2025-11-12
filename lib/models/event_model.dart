@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 @immutable
 class InvitationCustomization {
   final String? backgroundImagePath;
+  final List<String>? carouselImagePaths;  // Multiple images for carousel
   final Color? customPrimaryColor;
   final Color? customAccentColor;
   final Color? customBackgroundColor;
@@ -13,6 +14,7 @@ class InvitationCustomization {
   
   const InvitationCustomization({
     this.backgroundImagePath,
+    this.carouselImagePaths,
     this.customPrimaryColor,
     this.customAccentColor,
     this.customBackgroundColor,
@@ -22,6 +24,7 @@ class InvitationCustomization {
 
   InvitationCustomization copyWith({
     String? backgroundImagePath,
+    List<String>? carouselImagePaths,
     Color? customPrimaryColor,
     Color? customAccentColor,
     Color? customBackgroundColor,
@@ -30,6 +33,7 @@ class InvitationCustomization {
   }) {
     return InvitationCustomization(
       backgroundImagePath: backgroundImagePath ?? this.backgroundImagePath,
+      carouselImagePaths: carouselImagePaths ?? this.carouselImagePaths,
       customPrimaryColor: customPrimaryColor ?? this.customPrimaryColor,
       customAccentColor: customAccentColor ?? this.customAccentColor,
       customBackgroundColor: customBackgroundColor ?? this.customBackgroundColor,

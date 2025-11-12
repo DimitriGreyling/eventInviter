@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import '../models/invitation_template.dart';
 import '../models/event_model.dart';
+import 'invitation_image_carousel.dart';
 
 /// Reusable widget that renders an invitation based on template and event data
 class InvitationRenderer extends StatelessWidget {
@@ -122,6 +123,7 @@ class _CenteredLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scale = isPreview ? 0.4 : 1.0;
+    final carouselImages = event?.customization?.carouselImagePaths;
     
     return Padding(
       padding: EdgeInsets.all(isPreview ? 16 : 32),
@@ -174,6 +176,19 @@ class _CenteredLayout extends StatelessWidget {
             ),
             textAlign: TextAlign.center,
           ),
+          
+          // Image Carousel if images are provided
+          if (!isPreview && carouselImages != null && carouselImages.isNotEmpty) ...[
+            SizedBox(height: 20 * scale),
+            InvitationImageCarousel(
+              imagePaths: carouselImages,
+              height: 180 * scale,
+              borderRadius: BorderRadius.circular(12),
+              autoPlay: true,
+              showIndicators: true,
+            ),
+          ],
+          
           if (!isPreview && event != null) ...[
             SizedBox(height: 24 * scale),
             _EventDetails(event: event!, scale: scale, colorScheme: colorScheme),
